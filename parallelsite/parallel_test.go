@@ -1,7 +1,7 @@
 package parallelsite_test
 
 import (
-	"lessmarcos.com/belbo/parallelsite"
+	"github.com/lessmarcos/belbo/parallelsite"
 	"testing"
 )
 

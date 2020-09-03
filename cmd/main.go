@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/BurntSushi/toml"
+	"github.com/lessmarcos/belbo"
+	"github.com/lessmarcos/belbo/fs"
 	"io/ioutil"
-	"lessmarcos.com/belbo"
-	"lessmarcos.com/belbo/fs"
 	"log"
 	"net/http"
 	"os"

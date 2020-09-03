@@ -1,4 +1,4 @@
-module lessmarcos.com/belbo
+module github.com/lessmarcos/belbo
 
 go 1.14
 

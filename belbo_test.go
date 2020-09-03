@@ -1,7 +1,7 @@
 package belbo_test
 
 import (
-	"lessmarcos.com/belbo"
+	"github.com/lessmarcos/belbo"
 	"os"
 	"strings"
 	"testing"
