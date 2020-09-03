@@ -1,4 +1,4 @@
-package belbo
+package belbolib
 
 import (
 	"bufio"
@@ -22,7 +22,6 @@ const (
 )
 
 var (
-	Cfg                Params
 	cfg                Params
 	contentDir         string
 	templatesDir       string
@@ -68,7 +67,6 @@ type Page struct {
 
 func SetCfg(cfg_ Params) {
 	cfg = cfg_
-	Cfg = cfg_
 	rootPath = cfg.GetString("root_path")
 	contentDir = filepath.Join(cfg.GetString("root_path"), cfg.GetString("content_dir"))
 	templatesDir = filepath.Join(cfg.GetString("root_path"), cfg.GetString("templates_dir"))

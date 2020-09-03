@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/BurntSushi/toml"
-	"github.com/lessmarcos/belbo"
+	belbo "github.com/lessmarcos/belbo/belbolib"
 	"github.com/lessmarcos/belbo/fs"
 	"io/ioutil"
 	"log"
