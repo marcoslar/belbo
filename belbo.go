@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"github.com/BurntSushi/toml"
 	"github.com/lessmarcos/belbo/parallelsite"
-	"github.com/russross/blackfriday/v2"
+	"gopkg.in/russross/blackfriday.v2"
 	"html/template"
 	"io"
 	"os"
