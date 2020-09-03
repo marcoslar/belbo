@@ -13,6 +13,6 @@ USAGE
 Install it via:
     go install github.com/lessmarcos/belbo
 
-The binary (belbo) is installed in your $GOPATH/bin directory. Run it as:
+The binary (belbo) is installed in your $GOPATH/bin directory. Use it:
 
     me@localhost:~/my-blog$ belbo
