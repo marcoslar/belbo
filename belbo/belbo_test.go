@@ -1,8 +1,9 @@
-package belbolib_test
+package belbo_test
 
 import (
-	belbo "github.com/lessmarcos/belbo/belbolib"
+	belbo "github.com/lessmarcos/belbo/belbo"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -25,7 +26,7 @@ func TestBelbo(t *testing.T) {
 	setup(t)
 
 	t.Run("Integration tests", func(t *testing.T) {
-		os.Chdir("example")
+		os.Chdir(filepath.Join("..", "example"))
 
 		t.Run("correct number of pages in example/ are processed", func(t *testing.T) {
 			belbo.SetCfg(defaultCfg)

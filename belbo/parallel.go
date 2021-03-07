@@ -1,6 +1,6 @@
 // Package parallelsite enables Parallel Sites (see: X)
 // It's a very naive and non-elegant solution... but it works
-package parallelsite
+package belbo
 
 import (
 	"fmt"

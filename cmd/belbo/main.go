@@ -1,9 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/BurntSushi/toml"
-	belbo "github.com/lessmarcos/belbo/belbolib"
-	"github.com/lessmarcos/belbo/fs"
+	"github.com/lessmarcos/belbo/belbo"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -56,7 +56,8 @@ func main() {
 	pagesToProcess := belbo.PagesToProcess()
 
 	if len(pagesToProcess) == 0 {
-		log.Fatalln("- belbo found nothing to process")
+		fmt.Println("- belbo found nothing to process")
+		os.Exit(0)
 	}
 
 	if err := os.RemoveAll(belbo.OutputDir); err != nil {
@@ -75,9 +76,9 @@ func main() {
 
 	// Copy static dir to output directory
 	staticDir := DefaultCfg.GetString("static_dir")
-	if fs.Exists(staticDir) {
+	if belbo.Exists(staticDir) {
 		outputDir := DefaultCfg.GetString("output_dir")
-		if err := fs.CopyDirectory(
+		if err := belbo.CopyDirectory(
 			filepath.Join(RootPath, staticDir),
 			filepath.Join(RootPath, outputDir, staticDir)); err != nil {
 			panic(err)

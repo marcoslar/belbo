@@ -1,4 +1,4 @@
-package fs
+package belbo
 
 // Functions to deal with files and directories
 // Source: https://stackoverflow.com/a/56314145

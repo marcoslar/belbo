@@ -1,10 +1,9 @@
-package belbolib
+package belbo
 
 import (
 	"bufio"
 	"bytes"
 	"github.com/BurntSushi/toml"
-	"github.com/lessmarcos/belbo/parallelsite"
 	"gopkg.in/russross/blackfriday.v2"
 	"html/template"
 	"io"
@@ -201,7 +200,7 @@ func (page *Page) toTemplate() *template.Template {
 	}
 
 	htmlContent := string(blackfriday.Run([]byte(page.Content)))
-	htmlContent = parallelsite.EnableParallelContent(htmlContent)
+	htmlContent = EnableParallelContent(htmlContent)
 
 	tmpl, err := template.Must(baseTemplate.Clone()).Funcs(template.FuncMap{
 		"SimpleDate": FormattedDate,

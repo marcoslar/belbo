@@ -2,10 +2,10 @@ BELBO
 
 ---------------
 
-Belbo is a not production-ready static site generator that so far suits
+A toy static site generator. Not ready for production, but so far suits
 my needs (basic front-matter handling, basic layout templating and
 basic markdown to html processing). If there is something remarkable is that
-it enables what I call *parallel blogs* (read more about it here
+it enables what I call *parablogs* (read more about it here
 https://lessmarcos.com/posts/2020/08/parallel-blogs/).
 
 USAGE
