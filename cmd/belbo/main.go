@@ -32,6 +32,7 @@ var DefaultCfg = belbo.Params{
 
 	// Start up a local web server?
 	"local_server": true,
+	"server_port":  "4433",
 
 	"frontmatter_sep": "---",
 
@@ -87,10 +88,11 @@ func main() {
 
 	// Start local web server
 	if DefaultCfg.Get("local_server").(bool) {
+		port := DefaultCfg.GetString("server_port")
 		http.Handle("/", http.FileServer(http.Dir(DefaultCfg.GetString("output_dir"))))
-		log.Println("Serving on http://localhost:4433")
+		log.Println("Serving on http://localhost:" + port)
 
-		if err := http.ListenAndServe(":4433", nil); err != nil {
+		if err := http.ListenAndServe(":"+port, nil); err != nil {
 			log.Fatalln(err)
 		}
 	}
