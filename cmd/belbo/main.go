@@ -14,6 +14,7 @@ import (
 const (
 	RootPath       = "."
 	ConfigFilename = ".belbo.toml"
+	Version        = "v0.1.3"
 )
 
 // DefaultCfg provides the default values for a .belbo.toml config file
@@ -90,7 +91,7 @@ func main() {
 	if DefaultCfg.Get("local_server").(bool) {
 		port := DefaultCfg.GetString("server_port")
 		http.Handle("/", http.FileServer(http.Dir(DefaultCfg.GetString("output_dir"))))
-		log.Println("Serving on http://localhost:" + port)
+		log.Println("Belbo " + Version + ". Serving on http://localhost:" + port)
 
 		if err := http.ListenAndServe(":"+port, nil); err != nil {
 			log.Fatalln(err)
