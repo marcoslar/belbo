@@ -22,7 +22,7 @@ const (
 
 var (
 	cfg                Params
-	contentDir         string
+	contentDir         []string
 	templatesDir       string
 	OutputDir          string
 	rootPath           string
@@ -67,9 +67,12 @@ type Page struct {
 func SetCfg(cfg_ Params) {
 	cfg = cfg_
 	rootPath = cfg.GetString("root_path")
-	contentDir = filepath.Join(cfg.GetString("root_path"), cfg.GetString("content_dir"))
-	templatesDir = filepath.Join(cfg.GetString("root_path"), cfg.GetString("templates_dir"))
-	OutputDir = filepath.Join(cfg.GetString("root_path"), cfg.GetString("output_dir"))
+	contentDirSlice := cfg.GetStringSlice("content_dir")
+	for _, contentDirEntry := range contentDirSlice {
+		contentDir = append(contentDir, filepath.Join(rootPath, contentDirEntry))
+	}
+	templatesDir = filepath.Join(rootPath, cfg.GetString("templates_dir"))
+	OutputDir = filepath.Join(rootPath, cfg.GetString("output_dir"))
 	partialTemplates = func(cfg Params) []interface{} {
 		if cfg.Get("partials") != nil {
 			return cfg.Get("partials").([]interface{})
@@ -86,7 +89,7 @@ func PagesToProcess() []*Page {
 		}
 
 		currDir := filepath.Dir(path)
-		if currDir != rootPath && currDir != contentDir {
+		if currDir != rootPath && !stringInSlice(currDir, contentDir) {
 			return filepath.SkipDir
 		}
 
@@ -259,6 +262,8 @@ func getBaseTemplate(page *Page) (*template.Template, error) {
 func getOutputDir(page *Page) ([]string, bool) {
 	if datedFilenameRegex.MatchString(page.RelativePath) {
 		dirs := strings.Split(page.CreatedAt.Format(DateLayout), "-")
+		parts := strings.Split(page.RelativePath, "/")
+		contentDir := parts[0] // Strong assumption: relative path is like path/file-name.ext
 		return []string{OutputDir, contentDir, dirs[0], dirs[1], page.Name}, true
 	} else if page.RelativePath != "index.md" {
 		return []string{OutputDir, page.Name}, true
@@ -306,9 +311,30 @@ func (cfg Params) GetString(key string) string {
 	return ""
 }
 
+func (cfg Params) GetStringSlice(key string) []string {
+	var result []string
+	values := cfg.Get(key)
+	if values != nil {
+		for _, val := range values.([]interface{}) {
+			result = append(result, val.(string))
+		}
+	}
+
+	return result
+}
+
 func (cfg Params) Get(key string) interface{} {
 	if val, ok := cfg[key]; ok {
 		return val
 	}
 	return nil
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

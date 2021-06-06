@@ -1,0 +1,5 @@
+content_dir = [
+    "posts",
+    "logs",
+]
+output_dir = "dist"

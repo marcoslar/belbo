@@ -1,6 +1,7 @@
 package belbo_test
 
 import (
+	"fmt"
 	belbo "github.com/lessmarcos/belbo/belbo"
 	"os"
 	"path/filepath"
@@ -12,7 +13,7 @@ func TestBelbo(t *testing.T) {
 	var defaultCfg belbo.Params
 	setup := func(t *testing.T) {
 		defaultCfg = belbo.Params{
-			"content_dir":     "posts",
+			"content_dir":     []interface{}{"posts", "logs"},
 			"templates_dir":   "templates",
 			"output_dir":      "public",
 			"static_dir":      "static",
@@ -20,6 +21,7 @@ func TestBelbo(t *testing.T) {
 			"frontmatter_sep": "---",
 			"root_path":       ".",
 		}
+
 		belbo.SetCfg(defaultCfg)
 	}
 
@@ -31,18 +33,49 @@ func TestBelbo(t *testing.T) {
 		t.Run("correct number of pages in example/ are processed", func(t *testing.T) {
 			belbo.SetCfg(defaultCfg)
 			pagesToProcess := belbo.PagesToProcess()
-			if len(pagesToProcess) != 2 {
-				t.Fatalf("%d != %d", 2, len(pagesToProcess))
+			if len(pagesToProcess) != 3 {
+				t.Fatalf("%d != %d", 3, len(pagesToProcess))
 			}
 		})
 
-		t.Run("correct HTML is outputted", func(t *testing.T) {
-			pagesToProcess := belbo.PagesToProcess()
-			post1Html := string(pagesToProcess[0].ToHtml())
-			expectedHtml := "<h1>Hello</h1>\n\n<p>World</p>\n"
+		t.Run("correct HTML is rendered", func(t *testing.T) {
+			scenarios := map[string]string{
+				"logs/2020-09-03-bye.md":    "<h1>Logs</h1>\n",
+				"posts/2020-09-03-hello.md": "<h1>Hello</h1>\n\n<p>World</p>\n",
+				"index.md": `<p>Sessions:</p>
 
-			if post1Html != expectedHtml {
-				t.Fatalf("%s != %s", post1Html, expectedHtml)
+<ul>
+    
+    <li>
+       <span class="post-date">2020-09-03 00:00:00 &#43;0000 UTC</span>
+       <a href="logs/2020/09/bye">Bye</a>
+    </li>
+    
+    <li>
+       <span class="post-date">2020-09-03 00:00:00 &#43;0000 UTC</span>
+       <a href="posts/2020/09/hello">Hello</a>
+    </li>
+    
+    <li>
+       <span class="post-date">0001-01-01 00:00:00 &#43;0000 UTC</span>
+       <a href="index.html">Index</a>
+    </li>
+    
+</ul>
+`,
+			}
+
+			for _, p := range belbo.PagesToProcess() {
+				p.AllPages = belbo.PagesToProcess() // TODO this should not be triggered manually
+
+				postAsHtml := string(p.ToHtml())
+				expectedHtml := scenarios[p.RelativePath]
+
+				if postAsHtml != expectedHtml {
+					fmt.Println("[" + postAsHtml + "]")
+					fmt.Println("<" + expectedHtml + ">")
+					t.Fatalf("%s != %s", postAsHtml, expectedHtml)
+				}
 			}
 		})
 	})

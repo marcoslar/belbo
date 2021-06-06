@@ -19,7 +19,7 @@ const (
 // DefaultCfg provides the default values for a .belbo.toml config file
 var DefaultCfg = belbo.Params{
 	// Where the content exists
-	"content_dir": "posts",
+	"content_dir": []string{"posts", "logs"},
 
 	// Where layouts and partials exist
 	"templates_dir": "templates",
