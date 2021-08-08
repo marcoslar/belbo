@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"github.com/BurntSushi/toml"
 	"gopkg.in/russross/blackfriday.v2"
+	"html"
 	"html/template"
 	"io"
 	"os"
@@ -204,6 +205,7 @@ func (page *Page) toTemplate() *template.Template {
 
 	htmlContent := string(blackfriday.Run([]byte(page.Content)))
 	htmlContent = EnableParallelContent(htmlContent)
+	htmlContent = html.UnescapeString(htmlContent)
 
 	tmpl, err := template.Must(baseTemplate.Clone()).Funcs(template.FuncMap{
 		"SimpleDate": FormattedDate,

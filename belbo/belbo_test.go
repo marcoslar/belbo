@@ -41,7 +41,7 @@ func TestBelbo(t *testing.T) {
 		t.Run("correct HTML is rendered", func(t *testing.T) {
 			scenarios := map[string]string{
 				"logs/2020-09-03-bye.md":    "<h1>Logs</h1>\n",
-				"posts/2020-09-03-hello.md": "<h1>Hello</h1>\n\n<p>World</p>\n",
+				"posts/2020-09-03-hello.md": "<h1>Hello</h1>\n\n<p>Wörld</p>\n",
 				"index.md": `<p>Sessions:</p>
 
 <ul>

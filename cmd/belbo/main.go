@@ -14,7 +14,7 @@ import (
 const (
 	RootPath       = "."
 	ConfigFilename = ".belbo.toml"
-	Version        = "v0.1.3"
+	Version        = "v0.1.4"
 )
 
 // DefaultCfg provides the default values for a .belbo.toml config file

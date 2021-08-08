@@ -40,7 +40,7 @@ func FindReplaceablesSnippets(content string) []*Replaceable {
 
 	for pos, char := range content {
 		// FIXME content cannot end in '@'!
-		if rune(char) == '@' && []rune(content)[pos+1] == '{' {
+		if pos < len(content) && rune(char) == '@' && string(content[pos+1]) == string('{') {
 			initIndex := pos
 			finalIndex := findFinalIndex(content, pos)
 
