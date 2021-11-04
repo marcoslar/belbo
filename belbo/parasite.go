@@ -1,6 +1,7 @@
-// Package parallelsite enables Parallel Sites (see: X)
-// It's a very naive and non-elegant solution... but it works
 package belbo
+
+// Functions to enable parallel blogs (or parallel sites, parasites)
+// https://www.lessmarcos.com/posts/2020/08/parallel-blogs/
 
 import (
 	"fmt"
@@ -33,7 +34,7 @@ func EnableParallelContent(content string) string {
 	return Replace(content, replacements)
 }
 
-// FindReplaceableSnippets finds snippets in the form @{C1||C2||...||Cn}@ that
+// FindReplaceablesSnippets finds snippets in the form @{C1||C2||...||Cn}@ that
 // will be replaced later by <span> elements.
 func FindReplaceablesSnippets(content string) []*Replaceable {
 	var replaceables []*Replaceable
