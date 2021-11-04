@@ -1,118 +1,103 @@
 package belbo_test
 
 import (
-	"fmt"
-	belbo "github.com/lessmarcos/belbo/belbo"
-	"os"
-	"path/filepath"
-	"strings"
+	"github.com/lessmarcos/belbo/belbo"
 	"testing"
+	"testing/fstest"
+)
+
+const (
+	BaseLayoutTest = `
+{{ define "base_layout" }}
+<html>
+  <body>{{ template "content" . }}</body>
+  {{ template "footer" . }}
+</html>
+{{ end }}`
+
+	FooterPartialTest = `
+{{ define "footer" }}
+<footer>Some footer</footer>
+{{ end }}
+`
+	Post1Test = `
+---
+title = "Post number 1"
+---
+
+Some post content here
+`
+	Post1ExpectedHtml = `
+<html>
+  <body><p>Some post content here</p>
+</body>
+  
+<footer>Some footer</footer>
+
+</html>
+`
+	Index = `
+---
+title = "My Blog"
+---
+
+<ul>
+	{{ range $i, $page := .AllPages }}
+	<li>
+		<span>{{ $page.CreatedAt.Format "02 Jan 2006" }}</span>
+		<a href="/{{ $page.Url }}">{{ $page.Config.title }}</a>
+	</li>
+	{{ end }}
+</ul>
+`
 )
 
 func TestBelbo(t *testing.T) {
-	var defaultCfg belbo.Params
+	myfs := fstest.MapFS{
+		"templates/base_layout.html":     {Data: []byte(BaseLayoutTest)},
+		"templates/partials/footer.html": {Data: []byte(FooterPartialTest)},
+		"posts/2021-10-22-post1.md":      {Data: []byte(Post1Test)},
+		"index.md":                       {Data: []byte(Index)},
+		"about.md":                       {Data: []byte("About")},
+	}
+
+	var siteGenerator *belbo.Belbo
+
 	setup := func(t *testing.T) {
-		defaultCfg = belbo.Params{
-			"content_dir":     []interface{}{"posts", "logs"},
+		siteGenerator = belbo.NewBelbo(&belbo.Config{
+			"layout":          "base_layout",
+			"content_dir":     []string{"posts"},
 			"templates_dir":   "templates",
+			"templates":       []string{"footer"},
 			"output_dir":      "public",
 			"static_dir":      "static",
-			"local_server":    true,
+			"local_server":    false,
 			"frontmatter_sep": "---",
 			"root_path":       ".",
-		}
-
-		belbo.SetCfg(defaultCfg)
+		}, myfs)
 	}
 
 	setup(t)
 
-	t.Run("Integration tests", func(t *testing.T) {
-		os.Chdir(filepath.Join("..", "example"))
-
-		t.Run("correct number of pages in example/ are processed", func(t *testing.T) {
-			belbo.SetCfg(defaultCfg)
-			pagesToProcess := belbo.PagesToProcess()
-			if len(pagesToProcess) != 3 {
-				t.Fatalf("%d != %d", 3, len(pagesToProcess))
-			}
-		})
-
-		t.Run("correct HTML is rendered", func(t *testing.T) {
-			scenarios := map[string]string{
-				"logs/2020-09-03-bye.md":    "<h1>Logs</h1>\n",
-				"posts/2020-09-03-hello.md": "<h1>Hello</h1>\n\n<p>Wörld</p>\n",
-				"index.md": `<p>Sessions:</p>
-
-<ul>
-    
-    <li>
-       <span class="post-date">2020-09-03 00:00:00 &#43;0000 UTC</span>
-       <a href="logs/2020/09/bye">Bye</a>
-    </li>
-    
-    <li>
-       <span class="post-date">2020-09-03 00:00:00 &#43;0000 UTC</span>
-       <a href="posts/2020/09/hello">Hello</a>
-    </li>
-    
-    <li>
-       <span class="post-date">0001-01-01 00:00:00 &#43;0000 UTC</span>
-       <a href="index.html">Index</a>
-    </li>
-    
-</ul>
-`,
-			}
-
-			for _, p := range belbo.PagesToProcess() {
-				p.AllPages = belbo.PagesToProcess() // TODO this should not be triggered manually
-
-				postAsHtml := string(p.ToHtml())
-				expectedHtml := scenarios[p.RelativePath]
-
-				if postAsHtml != expectedHtml {
-					fmt.Println("[" + postAsHtml + "]")
-					fmt.Println("<" + expectedHtml + ">")
-					t.Fatalf("%s != %s", postAsHtml, expectedHtml)
-				}
-			}
-		})
+	t.Run("config is setup", func(t *testing.T) {
+		if siteGenerator.Config == nil {
+			t.Fatalf("config is nil")
+		}
 	})
 
-	t.Run("Unit tests", func(t *testing.T) {
-		t.Run("content is read", func(t *testing.T) {
-			sample := `---
-title = "Some title"
----
+	t.Run("pages processed", func(t *testing.T) {
+		siteGenerator.BuildPages()
 
-Hi there`
-			page := belbo.BuildPage("foo.md", strings.NewReader(sample))
-			expected := "\nHi there"
-
-			if page.Content != expected {
-				t.Fatalf("%s != %s", page.Content, expected)
-			}
-		})
-
-		t.Run("front-matter is read and merged with default values", func(t *testing.T) {
-			sample := `---
-title = "First post"
----
-`
-			page := belbo.BuildPage("./posts/2020-12-12-bar.md", strings.NewReader(sample))
-
-			if page.Params.GetString("title") != "First post" {
-				t.Fatalf("page title not equal. %s != %s", page.Params.GetString("title"), "First post")
+		for _, p := range siteGenerator.Pages {
+			if p.Html == "" {
+				t.Fatalf("page was not parsed correctly (%s)", p.RelativePath)
 			}
 
-			if page.Name != "bar" {
-				t.Fatalf("page name not equal. %s != %s", page.Name, "bar")
+			if p.RelativePath == "posts/2021-10-22-post1.md" {
+				if p.Html != Post1ExpectedHtml {
+					t.Fatalf("expect (%s) but got (%s)", Post1ExpectedHtml, p.Html)
+				}
 			}
-
-			if page.RelativePath != "./posts/2020-12-12-bar.md" {
-				t.Fatalf("page relative path not equal. %s != %s", page.RelativePath, "./posts/2020-12-12-bar.md")
-			}
-		})
+		}
 	})
 }

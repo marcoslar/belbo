@@ -8,7 +8,7 @@ Sessions:
     {{ range $k, $page := .AllPages }}
     <li>
        <span class="post-date">{{ $page.CreatedAt }}</span>
-       <a href="{{ $page.PublicPath }}">{{ $page.Params.title }}</a>
+       <a href="{{ $page.Url }}">{{ $page.Config.title }}</a>
     </li>
     {{ end }}
 </ul>

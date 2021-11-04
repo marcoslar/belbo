@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"github.com/BurntSushi/toml"
 	"github.com/lessmarcos/belbo/belbo"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -14,19 +11,22 @@ import (
 const (
 	RootPath       = "."
 	ConfigFilename = ".belbo.toml"
-	Version        = "v0.1.4"
+	Version        = "v0.2.0"
 )
 
-// DefaultCfg provides the default values for a .belbo.toml config file
-var DefaultCfg = belbo.Params{
+// DefaultCfg provides default values for a .belbo.toml config file
+var DefaultCfg = belbo.Config{
 	// Where the content exists
 	"content_dir": []string{"posts", "logs"},
 
 	// Where layouts and partials exist
 	"templates_dir": "templates",
 
-	// Where HTML is written out
-	"output_dir": "public",
+	// Template filenames
+	"templates": []string{},
+
+	// Where Html is written out
+	"build_dir": "dist",
 
 	// Where JS, CSS, images, etc. exist
 	"static_dir": "static",
@@ -37,43 +37,59 @@ var DefaultCfg = belbo.Params{
 
 	"frontmatter_sep": "---",
 
-	"root_path": ".",
+	"root_path": RootPath,
 }
 
 func main() {
-	log.SetFlags(0)
+	tomlConfig, err := os.ReadFile(filepath.Join(RootPath, ConfigFilename))
 
-	// Read .belbo.toml config file
-	cfgAsToml, err := ioutil.ReadFile(filepath.Join(RootPath, ConfigFilename))
 	if err != nil {
-		log.Println("- could not find a valid .belbo.toml config file. Using default values")
-		cfgAsToml = []byte("")
+		log.Println("- could not find a .belbo.toml config file")
+		tomlConfig = []byte("")
 	}
 
-	if _, err := toml.Decode(string(cfgAsToml), &DefaultCfg); err != nil {
-		panic(err)
+	DefaultCfg, err := belbo.NewConfig(string(tomlConfig), &DefaultCfg)
+	if err != nil {
+		log.Fatalln("- could not create a valid config file.", err)
 	}
 
-	belbo.SetCfg(DefaultCfg)
-	pagesToProcess := belbo.PagesToProcess()
+	siteGenerator := belbo.NewBelbo(DefaultCfg, os.DirFS(RootPath))
+	siteGenerator.BuildPages()
 
-	if len(pagesToProcess) == 0 {
-		fmt.Println("- belbo found nothing to process")
+	if len(siteGenerator.Pages) == 0 {
+		log.Println("- belbo found nothing to process")
 		os.Exit(0)
 	}
 
-	if err := os.RemoveAll(belbo.OutputDir); err != nil {
-		panic(err)
+	if err := os.RemoveAll(siteGenerator.BuildDir); err != nil {
+		log.Fatalf("- could not remove %s directory. %s", siteGenerator.BuildDir, err)
 	}
 
-	if err := os.MkdirAll(belbo.OutputDir, os.ModePerm); err != nil {
-		panic(err)
+	if err := os.MkdirAll(siteGenerator.BuildDir, os.ModePerm); err != nil {
+		log.Fatalf("- could not create %s directory. %s", siteGenerator.BuildDir, err)
 	}
 
-	for _, page := range pagesToProcess {
-		log.Println("+ Processing " + page.RelativePath)
-		page.AllPages = pagesToProcess
-		page.ToHtml()
+	for _, page := range siteGenerator.Pages {
+		func(p *belbo.Page) {
+			p.AllPages = siteGenerator.Pages
+			log.Println("+ processing " + p.RelativePath)
+
+			dirPath := filepath.Join(p.BuildDir...)
+			if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+				log.Fatalf("- could not create %s directory. %s", dirPath, err)
+				// TODO cleanup
+			}
+
+			f, err := os.Create(filepath.Join(append(p.BuildDir, "index.html")...))
+			if err != nil {
+				log.Fatalf("- could not create index.html. %s", err)
+				// TODO cleanup
+			}
+			defer f.Close()
+
+			f.Write([]byte(p.Html))
+		}(page)
+
 	}
 
 	// Copy static dir to output directory
@@ -91,7 +107,7 @@ func main() {
 	if DefaultCfg.Get("local_server").(bool) {
 		port := DefaultCfg.GetString("server_port")
 		http.Handle("/", http.FileServer(http.Dir(DefaultCfg.GetString("output_dir"))))
-		log.Println("Belbo " + Version + ". Serving on http://localhost:" + port)
+		log.Println("+ Belbo " + Version + ". Serving on http://localhost:" + port)
 
 		if err := http.ListenAndServe(":"+port, nil); err != nil {
 			log.Fatalln(err)
