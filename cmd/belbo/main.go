@@ -53,7 +53,9 @@ func main() {
 		log.Fatalln("- could not create a valid config file.", err)
 	}
 
-	siteGenerator := belbo.NewBelbo(DefaultCfg, os.DirFS(RootPath))
+	belboFuncs := belbo.LoadFuncsAsPlugins(DefaultCfg.GetString("plugins_dir"))
+
+	siteGenerator := belbo.NewBelbo(DefaultCfg, os.DirFS(RootPath), belboFuncs)
 	siteGenerator.BuildPages()
 
 	if len(siteGenerator.Pages) == 0 {
