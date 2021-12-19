@@ -4,3 +4,4 @@ content_dir = [
 ]
 
 output_dir = "dist"
+plugins_dir = "plugins"

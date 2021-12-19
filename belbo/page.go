@@ -117,11 +117,11 @@ func NewPage(pagePath string, rd io.Reader, cfg *Config) *Page {
 }
 
 func (p *Page) ToHtml(b *Belbo) template.HTML {
-	baseTemplate := template.Must(template.New("base_layout").Parse(DefaultBaseLayout))
+	baseTemplate := template.Must(template.New("base_layout").Funcs(b.Plugins).Parse(DefaultBaseLayout))
 	pageLayout := p.Config.GetString("layout")
 
 	if pageLayout != "" {
-		baseTemplate = template.Must(template.New(pageLayout).
+		baseTemplate = template.Must(template.New(pageLayout).Funcs(b.Plugins).
 			ParseFS(b.Fsys, filepath.Join(b.TemplatesDir, pageLayout+".html")))
 	}
 
@@ -131,12 +131,7 @@ func (p *Page) ToHtml(b *Belbo) template.HTML {
 		if err != nil {
 			panic(err)
 		}
-
-		baseTemplate = baseTemplate.Funcs(template.FuncMap{
-			"SimpleDate": func(t time.Time) string {
-				return t.Format(DateLayout)
-			},
-		})
+		baseTemplate = baseTemplate.Funcs(b.Plugins)
 	}
 
 	htmlContent := string(blackfriday.Run([]byte(p.RawContent)))

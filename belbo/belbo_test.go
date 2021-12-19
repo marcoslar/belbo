@@ -61,6 +61,17 @@ func TestBelbo(t *testing.T) {
 		"about.md":                       {Data: []byte("About")},
 	}
 
+	funcs := map[string]interface{}{
+		"reverse": func(s string) string {
+			result := ""
+			for _, ch := range s {
+				result = string(ch) + result
+			}
+
+			return result
+		},
+	}
+
 	var siteGenerator *belbo.Belbo
 
 	setup := func(t *testing.T) {
@@ -74,7 +85,7 @@ func TestBelbo(t *testing.T) {
 			"local_server":    false,
 			"frontmatter_sep": "---",
 			"root_path":       ".",
-		}, myfs)
+		}, myfs, funcs)
 	}
 
 	setup(t)
@@ -98,6 +109,13 @@ func TestBelbo(t *testing.T) {
 					t.Fatalf("expect (%s) but got (%s)", Post1ExpectedHtml, p.Html)
 				}
 			}
+		}
+	})
+
+	t.Run("funcs are loaded as plugins", func(t *testing.T) {
+		_, ok := siteGenerator.Plugins["reverse"]
+		if !ok {
+			t.Fatalf("expect `reverse` func to be loaded as plugin")
 		}
 	})
 }

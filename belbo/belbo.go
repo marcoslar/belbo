@@ -23,10 +23,12 @@ type Belbo struct {
 	TemplatesDir string
 	Templates    []string
 	BuildDir     string
+	PluginsDir   string
+	Plugins      map[string]interface{}
 	Pages        []*Page
 }
 
-func NewBelbo(cfg *Config, fsys fs.FS) *Belbo {
+func NewBelbo(cfg *Config, fsys fs.FS, funcs map[string]interface{}) *Belbo {
 	rootPath := cfg.GetString("root_path")
 
 	var contentDir []string
@@ -41,6 +43,8 @@ func NewBelbo(cfg *Config, fsys fs.FS) *Belbo {
 		TemplatesDir: filepath.Join(rootPath, cfg.GetString("templates_dir")),
 		BuildDir:     filepath.Join(rootPath, cfg.GetString("build_dir")),
 		Templates:    cfg.GetStringSlice("templates"),
+		PluginsDir:   cfg.GetString("plugins_dir"),
+		Plugins:      funcs,
 	}
 }
 
