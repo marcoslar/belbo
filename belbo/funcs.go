@@ -1,6 +1,7 @@
 package belbo
 
 import (
+	"html/template"
 	"log"
 	"os/exec"
 	"path/filepath"
@@ -37,10 +38,10 @@ func LoadFuncsAsPlugins(pluginsPath string) map[string]interface{} {
 		return emptyResult
 	}
 
-	var belboFuncs *map[string]interface{}
-	belboFuncs, ok := belboFuncsSymbol.(*map[string]interface{})
+	var belboFuncs *template.FuncMap
+	belboFuncs, ok := belboFuncsSymbol.(*template.FuncMap)
 	if !ok {
-		log.Printf("- BelboFuncs must be of type map[string]interface{}")
+		log.Printf("- BelboFuncs must be of type template.FuncMap, type is %T instead", belboFuncs)
 		return emptyResult
 	}
 

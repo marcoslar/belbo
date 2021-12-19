@@ -1,11 +1,14 @@
 package main
 
-import "time"
+import (
+	"html/template"
+	"time"
+)
 
 // Example of custom functions that can be used in templates
 
 // BelboFuncs must be a FuncMap
-var BelboFuncs = map[string]interface{}{
+var BelboFuncs = template.FuncMap{
 	"slice": func(s string, from, to int) string {
 		return s[from:to]
 	},
