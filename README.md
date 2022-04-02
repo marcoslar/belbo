@@ -12,13 +12,8 @@ what I call *parablogs* (you can read more about it [here][1]).
 
 ### Usage
 
-Install it via: `go get -u github.com/lessmarcos/belbo/...`.
-The binary (belbo) is installed in your `$GOPATH/bin` directory. 
-Use it:
-
-```
-me@localhost:~/my-blog$ belbo
-```
+Clone this repo and then run `go install cmd/belbo/main.go`. The binary
+should be installed in your `$GOPATH/bin` directory.
 
 ### Custom template functions
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/lessmarcos/belbo/belbo"
+	"github.com/marcoslar/belbo/belbo"
 	"log"
 	"net/http"
 	"os"
