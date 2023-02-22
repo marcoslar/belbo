@@ -71,27 +71,34 @@ func main() {
 		log.Fatalf("- could not create %s directory. %s", siteGenerator.BuildDir, err)
 	}
 
-	for _, page := range siteGenerator.Pages {
-		func(p *belbo.Page) {
-			p.AllPages = siteGenerator.Pages
-			log.Println("+ processing " + p.RelativePath)
+	for _, p := range siteGenerator.Pages {
+		p.AllPages = siteGenerator.Pages
+		log.Println("+ processing " + p.RelativePath)
 
-			dirPath := filepath.Join(p.BuildDir...)
-			if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
-				log.Fatalf("- could not create %s directory. %s", dirPath, err)
-				// TODO cleanup
-			}
+		if siteGenerator.IsPlainFile(p.RelativePath) {
+			x := filepath.Join(DefaultCfg.GetString("output_dir"), p.RelativePath)
 
-			f, err := os.Create(filepath.Join(append(p.BuildDir, "index.html")...))
+			f, err := os.Create(x)
 			if err != nil {
-				log.Fatalf("- could not create index.html. %s", err)
-				// TODO cleanup
+				log.Fatalf("- could not create %s. %s (%s)", p.RelativePath, err, p.BuildDir)
 			}
 			defer f.Close()
+			f.Write([]byte(p.RawContent))
+			continue
+		}
 
-			f.Write([]byte(p.Html))
-		}(page)
+		dirPath := filepath.Join(p.BuildDir...)
+		if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+			log.Fatalf("- could not create %s directory. %s", dirPath, err)
+		}
 
+		f, err := os.Create(filepath.Join(append(p.BuildDir, "index.html")...))
+		if err != nil {
+			log.Fatalf("- could not create index.html. %s", err)
+		}
+
+		defer f.Close()
+		f.Write([]byte(p.Html))
 	}
 
 	// Copy static dir to output directory

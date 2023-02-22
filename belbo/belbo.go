@@ -26,6 +26,7 @@ type Belbo struct {
 	PluginsDir   string
 	Plugins      map[string]interface{}
 	Pages        []*Page
+	PlainFiles   []string
 }
 
 func NewBelbo(cfg *Config, fsys fs.FS, funcs map[string]interface{}) *Belbo {
@@ -45,6 +46,7 @@ func NewBelbo(cfg *Config, fsys fs.FS, funcs map[string]interface{}) *Belbo {
 		Templates:    cfg.GetStringSlice("templates"),
 		PluginsDir:   cfg.GetString("plugins_dir"),
 		Plugins:      funcs,
+		PlainFiles:   cfg.GetStringSlice("plain_files"),
 	}
 }
 
@@ -62,7 +64,7 @@ func (b *Belbo) BuildPages() {
 
 		ext := filepath.Ext(filepath.Base(path))
 
-		if ext != ".md" && ext != ".html" {
+		if ext != ".md" && ext != ".html" && !b.IsPlainFile(path) {
 			return nil
 		}
 
@@ -88,12 +90,25 @@ func (b *Belbo) BuildPages() {
 
 	for _, p := range b.Pages {
 		p.AllPages = b.Pages
+		if b.IsPlainFile(p.RelativePath) {
+			continue
+		}
 		p.ToHtml(b)
 	}
 
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (b *Belbo) IsPlainFile(path string) bool {
+	for _, a := range b.PlainFiles {
+		if path == a {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (b *Belbo) IsContentDir(dirname string) bool {

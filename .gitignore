@@ -5,3 +5,4 @@ example/dist
 vendor
 LOG.txt
 plugins.so
+dist
