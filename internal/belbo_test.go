@@ -1,9 +1,11 @@
-package belbo_test
+package internal_test
 
 import (
-	"github.com/marcoslar/belbo/belbo"
+	"strconv"
 	"testing"
 	"testing/fstest"
+
+	"github.com/marcoslar/belbo/internal"
 )
 
 const (
@@ -11,7 +13,7 @@ const (
 {{ define "base_layout" }}
 <html>
   <body>{{ template "content" . }}</body>
-  {{ template "footer" . }}
+{{ template "footer" . }}
 </html>
 {{ end }}`
 
@@ -31,7 +33,7 @@ Some post content here
 <html>
   <body><p>Some post content here</p>
 </body>
-  
+
 <footer>Some footer</footer>
 
 </html>
@@ -72,10 +74,10 @@ func TestBelbo(t *testing.T) {
 		},
 	}
 
-	var siteGenerator *belbo.Belbo
+	var siteGenerator *internal.Belbo
 
 	setup := func(t *testing.T) {
-		siteGenerator = belbo.NewBelbo(&belbo.Config{
+		siteGenerator = internal.NewBelbo(&internal.Config{
 			"layout":          "base_layout",
 			"content_dir":     []string{"posts"},
 			"templates_dir":   "templates",
@@ -106,7 +108,7 @@ func TestBelbo(t *testing.T) {
 
 			if p.RelativePath == "posts/2021-10-22-post1.md" {
 				if p.Html != Post1ExpectedHtml {
-					t.Fatalf("expect (%s) but got (%s)", Post1ExpectedHtml, p.Html)
+					t.Fatalf("expect (%s) but got (%s)", strconv.Quote(string(Post1ExpectedHtml)), strconv.Quote(string(p.Html)))
 				}
 			}
 		}

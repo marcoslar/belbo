@@ -1,4 +1,4 @@
-package belbo
+package internal
 
 // Functions to enable parallel blogs (or parallel sites, parasites)
 // https://www.lessmarcos.com/posts/2020/08/parallel-blogs/

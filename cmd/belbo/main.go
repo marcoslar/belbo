@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/marcoslar/belbo/belbo"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/marcoslar/belbo/internal"
 )
 
 const (
@@ -15,7 +16,7 @@ const (
 )
 
 // DefaultCfg provides default values for a .belbo.toml config file
-var DefaultCfg = belbo.Config{
+var DefaultCfg = internal.Config{
 	// Where the content exists
 	"content_dir": []string{"posts", "logs"},
 
@@ -48,14 +49,14 @@ func main() {
 		tomlConfig = []byte("")
 	}
 
-	DefaultCfg, err := belbo.NewConfig(string(tomlConfig), &DefaultCfg)
+	DefaultCfg, err := internal.NewConfig(string(tomlConfig), &DefaultCfg)
 	if err != nil {
 		log.Fatalln("- could not create a valid config file.", err)
 	}
 
-	belboFuncs := belbo.LoadFuncsAsPlugins(DefaultCfg.GetString("plugins_dir"))
+	belboFuncs := internal.LoadFuncsAsPlugins(DefaultCfg.GetString("plugins_dir"))
 
-	siteGenerator := belbo.NewBelbo(DefaultCfg, os.DirFS(RootPath), belboFuncs)
+	siteGenerator := internal.NewBelbo(DefaultCfg, os.DirFS(RootPath), belboFuncs)
 	siteGenerator.BuildPages()
 
 	if len(siteGenerator.Pages) == 0 {
@@ -103,9 +104,9 @@ func main() {
 
 	// Copy static dir to output directory
 	staticDir := DefaultCfg.GetString("static_dir")
-	if belbo.Exists(staticDir) {
+	if internal.Exists(staticDir) {
 		outputDir := DefaultCfg.GetString("output_dir")
-		if err := belbo.CopyDirectory(
+		if err := internal.CopyDirectory(
 			filepath.Join(RootPath, staticDir),
 			filepath.Join(RootPath, outputDir, staticDir)); err != nil {
 			panic(err)

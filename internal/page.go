@@ -1,16 +1,17 @@
-package belbo
+package internal
 
 import (
 	"bufio"
 	"bytes"
-	"github.com/BurntSushi/toml"
-	"gopkg.in/russross/blackfriday.v2"
 	"html/template"
 	"io"
 	"path"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/BurntSushi/toml"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 // Page represents anything that may be written out as html

@@ -1,4 +1,4 @@
-package belbo
+package internal
 
 import "github.com/BurntSushi/toml"
 

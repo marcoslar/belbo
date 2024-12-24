@@ -1,4 +1,4 @@
-package belbo
+package internal
 
 // Functions to deal with files and directories
 // Source: https://stackoverflow.com/a/56314145
