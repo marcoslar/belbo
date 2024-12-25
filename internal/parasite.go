@@ -1,7 +1,7 @@
 package internal
 
 // Functions to enable parallel blogs (or parallel sites, parasites)
-// https://www.lessmarcos.com/posts/2020/08/parallel-blogs/
+// https://www.marcoslar.com/posts/2020/08/parallel-blogs/
 
 import (
 	"fmt"

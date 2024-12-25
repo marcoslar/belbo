@@ -104,11 +104,11 @@ func main() {
 
 	// Copy static dir to output directory
 	staticDir := DefaultCfg.GetString("static_dir")
-	if internal.Exists(staticDir) {
+	if _, err := os.Stat(staticDir); !os.IsNotExist(err) {
 		outputDir := DefaultCfg.GetString("output_dir")
-		if err := internal.CopyDirectory(
+		if err := os.CopyFS(
 			filepath.Join(RootPath, staticDir),
-			filepath.Join(RootPath, outputDir, staticDir)); err != nil {
+			os.DirFS(filepath.Join(RootPath, outputDir, staticDir))); err != nil {
 			panic(err)
 		}
 	}
