@@ -12,7 +12,7 @@ import (
 const (
 	RootPath       = "."
 	ConfigFilename = ".belbo.toml"
-	Version        = "v0.2.3"
+	Version        = "v0.2.4"
 )
 
 // DefaultCfg provides default values for a .belbo.toml config file
@@ -107,8 +107,8 @@ func main() {
 	if _, err := os.Stat(staticDir); !os.IsNotExist(err) {
 		outputDir := DefaultCfg.GetString("output_dir")
 		if err := os.CopyFS(
-			filepath.Join(RootPath, staticDir),
-			os.DirFS(filepath.Join(RootPath, outputDir, staticDir))); err != nil {
+			filepath.Join(RootPath, outputDir, staticDir),
+			os.DirFS(filepath.Join(RootPath, staticDir))); err != nil {
 			panic(err)
 		}
 	}
