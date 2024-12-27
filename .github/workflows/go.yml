@@ -10,6 +10,8 @@ jobs:
           go-version: "1.23"
       - name: Test
         run: go test -v ./...
+      - name: Go vet
+        run: go vet ./...
   golangci:
     runs-on: ubuntu-latest
     steps:
